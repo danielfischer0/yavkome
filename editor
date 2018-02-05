@@ -1,5 +1,6 @@
 <html>
 	<head>
+		<meta charset="utf-8">
 		<style>
 			#editor{
 				cursor:pointer;
@@ -12,74 +13,94 @@
 				background-color: buttonface;
 				padding: 1px 2px;
 			}
-			
+
 		</style>
 		<script>
 			window.onload = function() {
+				var i = 1;
+				var k = 1;
 				var canvas = document.getElementById("editor");
-				var context = canvas.getContext("2d");
+				ctx = canvas.getContext("2d");
 				var pressed = false;
-				var startX = 0;
-				var startY = 0;
+				var mid = [];
 				var bold = 10;
 				var color = '#000000';
 				var cap = 'round';
-				var lines = Array();
-				var i = 0;
+				//var maydraw = true;
+				//var massinterval;
+				ctx.lineCap = ctx.lineJoin = 'round';
+				var pos = [];
 				setStyle(bold, color, cap);
 				function setStyle(width, color, cap){
-					context.lineWidth = width;
-					context.strokeStyle = color;
-					context.lineCap = cap;
+					ctx.lineWidth = width;
+					ctx.strokeStyle = color;
+					ctx.lineCap = cap;
 				}
-				canvas.onmousewheel = function(e){
-					bold = context.lineWidth += e.wheelDelta / 40;
+				/*canvas.onmousewheel = function(e){
+					bold = ctx.lineWidth += e.wheelDelta / 40;
 					setStyle(bold, color, cap);
-				}
-				canvas.onmousemove = function(e){
-					if(pressed){
-						//context.lineTo(e.pageX, e.pageY);
-						//context.moveTo(e.pageX, e.pageY);
-						//context.stroke();
-						context.beginPath()
-						var controlX = Math.abs(lines[i] - e.pageX) / 2;
-						var controlY = Math.abs(lines[i + 1] - e.pageY) * 2;
-						context.moveTo(lines[i], lines[i + 1]);
-						context.quadraticCurveTo(controlX,controlY,e.pageX,e.pageY);
-						context.stroke();
-						
-						lines.push(e.pageX, e.pageY);
-						i++;
-					}
-				}
+				}*/
 				canvas.onmousedown = function(e){
-					context.moveTo(e.pageX, e.pageY);
 					pressed = true;
-					startX = e.pageX;
-					startY = e.pageY;
+					pos.push(
+						{
+							x:e.pageX+0.5,
+							y:e.pageY+0.5
+						}
+					);
+					ctx.beginPath();
+					ctx.moveTo(pos[0].x,pos[0].y);
 				}
-				canvas.onmouseup = function(e){
-					pressed = false;
-					lines.length = 0;
-					i = 0;
-					//var controlX = Math.abs(startX - e.pageX) / 2;
-					//var controlY = Math.abs(startY - e.pageY) * 2;
-					//context.moveTo(startX, startY);
-					//context.quadraticCurveTo(controlX,controlY,e.pageX,e.pageY);
-					//context.stroke();
+
+				window.onmousemove = function(e){
+					if(!pressed) return;
+					/*
+					if(maydraw){
+						maydraw = false;
+					}
+					else{
+						return;
+					} */// заготовка если захочешь сделать задержку как у глюка (и у меня)
+					pos.push({
+						x:e.pageX+0.5,
+						y:e.pageY+0.5
+					});
+					mid.push({
+						x:(pos[k].x + pos[k-1].x)/2,
+						y:(pos[k].y + pos[k-1].y)/2
+					})
+					ctx.quadraticCurveTo(pos[k-1].x,pos[k-1].y,mid[k-1].x,mid[k-1].y);
+					ctx.stroke();
+					ctx.beginPath();
+					ctx.moveTo(mid[k-1].x,mid[k-1].y);
+					k++;
 				}
-				canvas.onmouseout = function(e){
+
+				window.onmouseup = function(e){
 					pressed = false;
+					pos = [];
+					mid = [];
+					i = 1;
+					k = 1;
 				}
 				document.getElementById('color').onchange = function(e){
 					color = document.getElementById('color').value;
 					setStyle(bold, color, cap);
 				}
+				/*function setMass(mass){
+					clearInterval(massinterval);
+					massinterval = setInterval(function(){
+						maydraw = true;
+					},mass);
+				}
+				setMass(100);*/
 			}
 		</script>
 	</head>
 	<body>
 		<canvas id="editor" width="800" height="400" style="background-color: lightGray;"></canvas><br/>
 		<input type="color" id="color"></input>
+		<!--Сам потом только сделай палитру, потому-что этот элемент не поддерживается многими современными браузерами
+		тоже. Например - Safari. А это один из самых популярных браузеров у маководов.Кроссбраузерность первыше всего -->
 	</body>
 </html>
